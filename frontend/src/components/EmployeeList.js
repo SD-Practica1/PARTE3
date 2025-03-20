@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 
-const horarios = [
-  { inicio: { hora: 8, minutos: 30 }, fin: { hora: 12, minutos: 30 } },
-  { inicio: { hora: 14, minutos: 30 }, fin: { hora: 18, minutos: 30 } }
-];
+const horarios = {
+  mañana: { inicio: { hora: 8, minutos: 30 }, fin: { hora: 12, minutos: 30 } },
+  tarde: { inicio: { hora: 14, minutos: 30 }, fin: { hora: 18, minutos: 30 } },
+};
 
 const EmployeeList = () => {
   const [empleados, setEmpleados] = useState([]);
@@ -13,64 +13,24 @@ const EmployeeList = () => {
   const [reporteMensual, setReporteMensual] = useState([]);
   const [mostrarReporte, setMostrarReporte] = useState(false);
 
-  // Obtener empleados desde el backend
   useEffect(() => {
-    axios
-      .get("http://localhost:9097/empleados")
+    axios.get("http://localhost:9097/empleados")
       .then((response) => {
-        const empleadosOrdenados = response.data.sort((a, b) => a.nombre.localeCompare(b.nombre));
-        setEmpleados(empleadosOrdenados);
+        setEmpleados(response.data.sort((a, b) => a.nombre.localeCompare(b.nombre)));
       })
-      .catch((error) => {
-        console.error("Error al obtener los empleados:", error);
-      });
+      .catch((error) => console.error("Error al obtener los empleados:", error));
   }, []);
 
-  // Obtener los registros de asistencia del empleado seleccionado
   useEffect(() => {
     if (selectedEmpleado) {
-      axios
-        .get(`http://localhost:9097/empleados/${selectedEmpleado}/asistencia`)
+      axios.get(`http://localhost:9097/empleados/${selectedEmpleado}/asistencia`)
         .then((response) => {
           setRegistrosAsistencia(response.data);
-          setMostrarReporte(false); // Ocultar el reporte al cambiar de empleado
+          setMostrarReporte(false);
         })
-        .catch((error) => {
-          console.error("Error al obtener los registros de asistencia:", error);
-        });
+        .catch((error) => console.error("Error al obtener registros:", error));
     }
   }, [selectedEmpleado]);
-
-  // Función para formatear los minutos de retraso como "hh:mm:ss"
-  const formatRetraso = (retrasoEnSegundos) => {
-    const horas = Math.floor(retrasoEnSegundos / 3600);
-    const minutos = Math.floor((retrasoEnSegundos % 3600) / 60);
-    const segundos = retrasoEnSegundos % 60;
-    return `${horas > 0 ? horas + ":" : ""}${minutos < 10 ? "0" + minutos : minutos}:${segundos < 10 ? "0" + segundos : segundos}`;
-  };
-
-  // Función para calcular el retraso en la hora de entrada o salida
-  const calcularRetraso = (horaEntrada, horaSalida) => {
-    let retrasoEnSegundos = 0;
-
-    if (horaEntrada) {
-      const [hora, minutos] = horaEntrada.split(":").map(Number);
-      if (hora > 8 || (hora === 8 && minutos > 30)) {
-        // Calculamos solo si llegó después de las 08:30
-        retrasoEnSegundos = (hora - 8) * 3600 + (minutos - 30) * 60;
-      }
-    }
-
-    if (horaSalida) {
-      const [hora, minutos] = horaSalida.split(":").map(Number);
-      if (hora < 17 || (hora === 17 && minutos < 30)) {
-        // Calculamos solo si salió antes de las 17:30
-        retrasoEnSegundos = (hora - 17) * 3600 + (minutos - 30) * 60;
-      }
-    }
-
-    return retrasoEnSegundos;
-  };
 
   // Función para generar reporte mensual
   const generarReporteMensual = () => {
@@ -147,10 +107,23 @@ const EmployeeList = () => {
   };
 
   return (
-    <div style={{ fontFamily: "Arial, sans-serif", padding: "20px" }}>
+    <div style={{ fontFamily: "Arial, sans-serif" }}>
       <h1 style={{ color: "#2c3e50", textAlign: "center" }}>Seleccionar Empleado</h1>
 
-      {/* ComboBox para seleccionar un empleado */}
+      <div>
+        <h2 style={{ textAlign: "center", color: "#34495e" }}>Horarios de Turnos</h2>
+        <ul style={{ textAlign: "center", listStyle: "none", padding: 0 }}>
+          {Object.entries(horarios).map(([nombre, turno], index) => (
+            <li key={index} style={{ marginBottom: "5px", fontSize: "16px" }}>
+              <strong>{nombre.charAt(0).toUpperCase() + nombre.slice(1)}:</strong>{" "}
+              {turno.inicio.hora}:{turno.inicio.minutos.toString().padStart(2, "0")} -{" "}
+              {turno.fin.hora}:{turno.fin.minutos.toString().padStart(2, "0")}
+            </li>
+          ))}
+        </ul>
+      </div>
+
+
       <select
         value={selectedEmpleado}
         onChange={(e) => setSelectedEmpleado(e.target.value)}
@@ -174,7 +147,6 @@ const EmployeeList = () => {
         ))}
       </select>
 
-      {/* Tabla de registros de asistencia */}
       {registrosAsistencia.length > 0 && (
         <div>
           <h2 style={{ textAlign: "center", color: "#34495e" }}>Registros de Asistencia</h2>
@@ -189,54 +161,56 @@ const EmployeeList = () => {
             <thead>
               <tr style={{ backgroundColor: "#2c3e50", color: "white", textAlign: "center" }}>
                 <th style={{ padding: "12px" }}>Fecha</th>
-                <th style={{ padding: "12px" }}>Entrada 1</th>
-                <th style={{ padding: "12px" }}>Salida 1</th>
-                <th style={{ padding: "12px" }}>Entrada 2</th>
-                <th style={{ padding: "12px" }}>Salida 2</th>
+                <th style={{ padding: "12px" }}>Entrada (Mañana)</th>
+                <th style={{ padding: "12px" }}>Salida (Mañana)</th>
+                <th style={{ padding: "12px" }}>Entrada (Tarde)</th>
+                <th style={{ padding: "12px" }}>Salida (Tarde)</th>
               </tr>
             </thead>
             <tbody>
-              {registrosAsistencia.map((registro, index) => (
-                <tr key={index} style={{ textAlign: "center" }}>
-                  <td style={{ padding: "10px", border: "1px solid #ddd" }}>{new Date(registro.fecha).toLocaleDateString('es-ES')}</td>
-                  <td
-                    style={{
-                      padding: "10px",
-                      borderBottom: "1px solid #ddd",
-                      color: (registro.entrada && calcularRetraso(registro.entrada, null) > 0) ? "#e74c3c" : "black",
-                      fontWeight: (registro.entrada && calcularRetraso(registro.entrada, null) > 0) ? "bold" : "normal",
-                    }}
-                  >
-                    {registro.entrada}
-                  </td>
-                  <td
-                    style={{
-                      padding: "10px",
-                      borderBottom: "1px solid #ddd",
-                      color: (registro.salida && calcularRetraso(null, registro.salida) < 0) ? "#e74c3c" : "black",
-                      fontWeight: (registro.salida && calcularRetraso(null, registro.salida) < 0) ? "bold" : "normal",
-                    }}
-                  >
-                    {registro.salida}
-                  </td>
-                  <td
-                    style={{
-                      padding: "10px",
-                      borderBottom: "1px solid #ddd",
-                      color: (registro.salida && calcularRetraso(null, registro.salida) < 0) ? "#e74c3c" : "black",
-                      fontWeight: (registro.salida && calcularRetraso(null, registro.salida) < 0) ? "bold" : "normal",
-                    }}
-                  >  </td>
-                  <td
-                    style={{
-                      padding: "10px",
-                      borderBottom: "1px solid #ddd",
-                      color: (registro.salida && calcularRetraso(null, registro.salida) < 0) ? "#e74c3c" : "black",
-                      fontWeight: (registro.salida && calcularRetraso(null, registro.salida) < 0) ? "bold" : "normal",
-                    }}
-                  >  </td>
-                </tr>
-              ))}
+              {registrosAsistencia.map((registro, index) => {
+                const [hEntrada, mEntrada] = registro.entrada?.split(":").map(Number) || [];
+                const [hSalida, mSalida] = registro.salida?.split(":").map(Number) || [];
+                let entradaMañana = "-", salidaMañana = "-", entradaTarde = "-", salidaTarde = "-";
+
+                if (hEntrada !== undefined) {
+                  if (hEntrada < 8 || (hEntrada === 8 && mEntrada < 30)) {
+                    entradaMañana = registro.entrada;
+                  } else if (hEntrada > 12 || (hEntrada === 12 && mEntrada > 30)) {
+                    entradaTarde = registro.entrada;
+                  }
+                }
+
+                if (hSalida !== undefined) {
+                  if (hSalida < 8 || (hSalida === 8 && mSalida < 30)) {
+                    salidaTarde = registro.salida;
+                  } else if (hSalida < 14 || (hSalida === 14 && mSalida < 30)) {
+                    salidaMañana = registro.salida;
+                  } else {
+                    salidaTarde = registro.salida;
+                  }
+                }
+
+                const retrasoMañana = entradaMañana !== "-" && hEntrada >= 8 && mEntrada > 30;
+                const retrasoTarde = entradaTarde !== "-" && hEntrada >= 14 && mEntrada > 30;
+                const salidaAntesMañana = salidaMañana !== "-" && (hSalida < 12 || (hSalida === 12 && mSalida < 30));
+                const salidaAntesTarde = salidaTarde !== "-" && (hSalida < 18 || (hSalida === 18 && mSalida < 30));
+
+                return (
+                  <tr key={index} style={{ textAlign: "center" }}>
+                    <td style={{ padding: "10px",
+                      borderBottom: "1px solid #ddd"}}>{new Date(registro.fecha).toLocaleDateString("es-ES")}</td>
+                    <td style={{ padding: "10px",
+                      borderBottom: "1px solid #ddd", color: retrasoMañana ? "#e74c3c" : "black" }}>{entradaMañana}</td>
+                    <td style={{ padding: "10px",
+                      borderBottom: "1px solid #ddd", color: salidaAntesMañana ? "#e74c3c" : "black" }}>{salidaMañana}</td>
+                    <td style={{ padding: "10px",
+                      borderBottom: "1px solid #ddd", color: retrasoTarde ? "#e74c3c" : "black" }}>{entradaTarde}</td>
+                    <td style={{ padding: "10px",
+                      borderBottom: "1px solid #ddd", color: salidaAntesTarde ? "#e74c3c" : "black" }}>{salidaTarde}</td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>
@@ -261,39 +235,40 @@ const EmployeeList = () => {
       </button>
 
       {/* Mostrar el reporte mensual */}
-{mostrarReporte && (
-  <div>
-    <h2 style={{ textAlign: "center", color: "#34495e" }}>Reporte Mensual</h2>
-    <table
-      style={{
-        width: "100%",
-        marginTop: "10px",
-        borderCollapse: "collapse",
-        boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
-      }}
-    >
-      <thead>
-        <tr style={{ backgroundColor: "#2c3e50", color: "white", textAlign: "center" }}>
-         
-          <th style={{ padding: "12px" }}>Retraso Total</th>
-          <th style={{ padding: "12px" }}>Días Trabajados</th>
-        </tr>
-      </thead>
-      <tbody>
-        {reporteMensual.map((reporte, index) => (
-          <tr key={index} style={{ textAlign: "center" }}>
-           
-            <td style={{ padding: "10px", borderBottom: "1px solid #ddd" }}>{reporte.retraso}</td>
-            <td style={{ padding: "10px", borderBottom: "1px solid #ddd" }}>{reporte.diasTrabajados}</td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
-  </div>
-)}
+      {mostrarReporte && (
+        <div>
+          <h2 style={{ textAlign: "center", color: "#34495e" }}>Reporte Mensual</h2>
+          <table
+            style={{
+              width: "100%",
+              marginTop: "10px",
+              borderCollapse: "collapse",
+              boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+            }}
+          >
+            <thead>
+              <tr style={{ backgroundColor: "#2c3e50", color: "white", textAlign: "center" }}>
 
+                <th style={{ padding: "12px" }}>Retraso Total</th>
+                <th style={{ padding: "12px" }}>Días Trabajados</th>
+              </tr>
+            </thead>
+            <tbody>
+              {reporteMensual.map((reporte, index) => (
+                <tr key={index} style={{ textAlign: "center" }}>
+
+                  <td style={{ padding: "10px", borderBottom: "1px solid #ddd" }}>{reporte.retraso}</td>
+                  <td style={{ padding: "10px", borderBottom: "1px solid #ddd" }}>{reporte.diasTrabajados}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
     </div>
   );
 };
+
+
 
 export default EmployeeList;
