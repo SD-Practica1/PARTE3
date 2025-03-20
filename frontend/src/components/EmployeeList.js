@@ -1,6 +1,11 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 
+const horarios = [
+  { inicio: { hora: 8, minutos: 30 }, fin: { hora: 12, minutos: 30 } },
+  { inicio: { hora: 14, minutos: 30 }, fin: { hora: 18, minutos: 30 } }
+];
+
 const EmployeeList = () => {
   const [empleados, setEmpleados] = useState([]);
   const [selectedEmpleado, setSelectedEmpleado] = useState("");
@@ -13,7 +18,8 @@ const EmployeeList = () => {
     axios
       .get("http://localhost:9097/empleados")
       .then((response) => {
-        setEmpleados(response.data);
+        const empleadosOrdenados = response.data.sort((a, b) => a.nombre.localeCompare(b.nombre));
+        setEmpleados(empleadosOrdenados);
       })
       .catch((error) => {
         console.error("Error al obtener los empleados:", error);
@@ -183,14 +189,16 @@ const EmployeeList = () => {
             <thead>
               <tr style={{ backgroundColor: "#2c3e50", color: "white", textAlign: "center" }}>
                 <th style={{ padding: "12px" }}>Fecha</th>
-                <th style={{ padding: "12px" }}>Hora de Entrada</th>
-                <th style={{ padding: "12px" }}>Hora de Salida</th>
+                <th style={{ padding: "12px" }}>Entrada 1</th>
+                <th style={{ padding: "12px" }}>Salida 1</th>
+                <th style={{ padding: "12px" }}>Entrada 2</th>
+                <th style={{ padding: "12px" }}>Salida 2</th>
               </tr>
             </thead>
             <tbody>
               {registrosAsistencia.map((registro, index) => (
                 <tr key={index} style={{ textAlign: "center" }}>
-                  <td style={{ padding: "10px", borderBottom: "1px solid #ddd" }}>{registro.fecha}</td>
+                  <td style={{ padding: "10px", border: "1px solid #ddd" }}>{new Date(registro.fecha).toLocaleDateString('es-ES')}</td>
                   <td
                     style={{
                       padding: "10px",
@@ -211,6 +219,22 @@ const EmployeeList = () => {
                   >
                     {registro.salida}
                   </td>
+                  <td
+                    style={{
+                      padding: "10px",
+                      borderBottom: "1px solid #ddd",
+                      color: (registro.salida && calcularRetraso(null, registro.salida) < 0) ? "#e74c3c" : "black",
+                      fontWeight: (registro.salida && calcularRetraso(null, registro.salida) < 0) ? "bold" : "normal",
+                    }}
+                  >  </td>
+                  <td
+                    style={{
+                      padding: "10px",
+                      borderBottom: "1px solid #ddd",
+                      color: (registro.salida && calcularRetraso(null, registro.salida) < 0) ? "#e74c3c" : "black",
+                      fontWeight: (registro.salida && calcularRetraso(null, registro.salida) < 0) ? "bold" : "normal",
+                    }}
+                  >  </td>
                 </tr>
               ))}
             </tbody>
