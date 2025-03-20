@@ -1,8 +1,12 @@
 import React, { useState } from "react";
+import CryptoJS from "crypto-js";
 import EmployeeList from "./components/EmployeeList";
+
+const SECRET_KEY = "mi_clave_secreta"; // Cambia esto por una clave segura
 
 const App = () => {
     const [key, setKey] = useState('');
+    const [encryptedKey, setEncryptedKey] = useState('');
     const [accessGranted, setAccessGranted] = useState(false);
 
     // Función para manejar la entrada de la clave
@@ -12,7 +16,11 @@ const App = () => {
 
     // Verificar la clave y otorgar acceso
     const checkAccess = () => {
-        if (key === '123456') {
+        if (key === "123456") {
+            // Cifrar la clave y guardarla
+            const encrypted = CryptoJS.AES.encrypt(key, SECRET_KEY).toString();
+            setEncryptedKey(encrypted);
+
             setAccessGranted(true);  // Acceso concedido
         } else {
             alert('Clave incorrecta. Acceso denegado.');
@@ -38,9 +46,18 @@ const App = () => {
                 </div>
             )}
 
-            {/* Mostrar EmployeeList solo si la clave es correcta */}
+            {/* Mostrar información cifrada solo si la clave es correcta */}
             {accessGranted ? (
-                <EmployeeList />
+                <div>
+                    <EmployeeList />
+                    <p><strong>Clave encriptada:</strong></p>
+                    <textarea 
+                        value={encryptedKey} 
+                        readOnly 
+                        rows="4" 
+                        cols="50"
+                    />
+                </div>
             ) : (
                 <p>Introduce la clave correcta para acceder a la lista de empleados.</p>
             )}
