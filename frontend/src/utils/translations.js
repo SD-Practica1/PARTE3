@@ -23,6 +23,34 @@ export const translations = {
           end: "18:30"
         }
       }
+    },
+    reportGeneration: {
+      title: "Generate Report",
+      selectDateRange: "Select Date Range",
+      startDate: "Start Date",
+      endDate: "End Date",
+      generateButton: "Generate Report",
+      downloadButton: "Download Report",
+      noDataAvailable: "No data available for the selected period",
+      reportTypes: {
+        attendance: "Attendance Report",
+        workHours: "Work Hours Report",
+        shiftSummary: "Shift Summary"
+      }
+    },
+    attendanceTable: {
+      title: "Attendance Records",
+      generateReport: "Generate Monthly Report",
+      monthlyReport: "Monthly Report",
+      headers: {
+        date: "Date",
+        morningEntry: "Morning Entry",
+        morningExit: "Morning Exit",
+        afternoonEntry: "Afternoon Entry",
+        afternoonExit: "Afternoon Exit",
+        totalDelay: "Total Delay",
+        workedDays: "Worked Days"
+      }
     }
   },
   es: {
@@ -48,6 +76,34 @@ export const translations = {
           end: "18:30"
         }
       }
+    },
+    reportGeneration: {
+      title: "Generar Informe",
+      selectDateRange: "Seleccionar Rango de Fechas",
+      startDate: "Fecha de Inicio",
+      endDate: "Fecha de Fin",
+      generateButton: "Generar Informe",
+      downloadButton: "Descargar Informe",
+      noDataAvailable: "No hay datos disponibles para el período seleccionado",
+      reportTypes: {
+        attendance: "Informe de Asistencia",
+        workHours: "Informe de Horas Trabajadas",
+        shiftSummary: "Resumen de Turnos"
+      }
+    },
+    attendanceTable: {
+      title: "Registros de Asistencia",
+      generateReport: "Generar Reporte Mensual",
+      monthlyReport: "Reporte Mensual",
+      headers: {
+        date: "Fecha",
+        morningEntry: "Entrada (Mañana)",
+        morningExit: "Salida (Mañana)",
+        afternoonEntry: "Entrada (Tarde)",
+        afternoonExit: "Salida (Tarde)",
+        totalDelay: "Retraso Total",
+        workedDays: "Días Trabajados"
+      }
     }
   },
   ko: {
@@ -72,6 +128,34 @@ export const translations = {
           start: "14:30",
           end: "18:30"
         }
+      }
+    },
+    reportGeneration: {
+      title: "보고서 생성",
+      selectDateRange: "날짜 범위 선택",
+      startDate: "시작 날짜",
+      endDate: "종료 날짜",
+      generateButton: "보고서 생성",
+      downloadButton: "보고서 다운로드",
+      noDataAvailable: "선택한 기간에 대한 데이터가 없습니다.",
+      reportTypes: {
+        attendance: "출근 보고서",
+        workHours: "근무 시간 보고서",
+        shiftSummary: "교대 요약"
+      }
+    },
+    attendanceTable: {
+      title: "출근 기록",
+      generateReport: "월간 보고서 생성",
+      monthlyReport: "월간 보고서",
+      headers: {
+        date: "날짜",
+        morningEntry: "오전 출근",
+        morningExit: "오전 퇴근",
+        afternoonEntry: "오후 출근",
+        afternoonExit: "오후 퇴근",
+        totalDelay: "총 지연",
+        workedDays: "근무일"
       }
     }
   }

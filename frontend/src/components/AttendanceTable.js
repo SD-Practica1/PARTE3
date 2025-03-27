@@ -1,8 +1,8 @@
 import React, { useState } from "react";
-import { useLanguage } from "../utils/translations";
+import { useTranslation } from 'react-i18next';
 
-const AttendanceTable = ({ registrosAsistencia, language }) => {
-  const t = useLanguage(language);
+const AttendanceTable = ({ registrosAsistencia }) => {
+  const { t } = useTranslation();
   const [mostrarReporte, setMostrarReporte] = useState(false);
   const [reporteMensual, setReporteMensual] = useState([]);
 
@@ -15,8 +15,8 @@ const AttendanceTable = ({ registrosAsistencia, language }) => {
     const minutosEntrada = convertirAHorasMinutos(horaEntrada);
     const minutosInicioTurno =
       turno === "mañana" 
-        ? convertirAHorasMinutos(t.employeeList.shiftTimes.morning.start)
-        : convertirAHorasMinutos(t.employeeList.shiftTimes.afternoon.start);
+        ? convertirAHorasMinutos(t('employeeList.shiftTimes.morning.start'))
+        : convertirAHorasMinutos(t('employeeList.shiftTimes.afternoon.start'));
 
     const retraso = minutosEntrada - minutosInicioTurno;
     return retraso > 0 ? retraso : 0; // Si no hay retraso, retorna 0
@@ -31,7 +31,7 @@ const AttendanceTable = ({ registrosAsistencia, language }) => {
       if (registro.entrada) {
         const minutosEntrada = convertirAHorasMinutos(registro.entrada);
   
-        if (minutosEntrada <= convertirAHorasMinutos(t.employeeList.shiftTimes.morning.end)) {
+        if (minutosEntrada <= convertirAHorasMinutos(t('employeeList.shiftTimes.morning.end'))) {
           // Calcular retraso para turno mañana
           retrasoTotal = calcularRetraso(registro.entrada, "mañana");
         } else {
@@ -66,7 +66,7 @@ const AttendanceTable = ({ registrosAsistencia, language }) => {
     <div style={{ fontFamily: "Arial, sans-serif" }}>
       {/* Tabla original de registros de asistencia */}
       <div>
-        <h2 style={{ textAlign: "center", color: "#34495e" }}>Registros de Asistencia</h2>
+        <h2 style={{ textAlign: "center", color: "#34495e" }}>{t('attendanceTable.title')}</h2>
         <table
           style={{
             width: "100%",
@@ -77,11 +77,11 @@ const AttendanceTable = ({ registrosAsistencia, language }) => {
         >
           <thead>
             <tr style={{ backgroundColor: "#2c3e50", color: "white", textAlign: "center" }}>
-              <th style={{ padding: "12px" }}>Fecha</th>
-              <th style={{ padding: "12px" }}>Entrada (Mañana)</th>
-              <th style={{ padding: "12px" }}>Salida (Mañana)</th>
-              <th style={{ padding: "12px" }}>Entrada (Tarde)</th>
-              <th style={{ padding: "12px" }}>Salida (Tarde)</th>
+              <th style={{ padding: "12px" }}>{t('attendanceTable.headers.date')}</th>
+              <th style={{ padding: "12px" }}>{t('attendanceTable.headers.morningEntry')}</th>
+              <th style={{ padding: "12px" }}>{t('attendanceTable.headers.morningExit')}</th>
+              <th style={{ padding: "12px" }}>{t('attendanceTable.headers.afternoonEntry')}</th>
+              <th style={{ padding: "12px" }}>{t('attendanceTable.headers.afternoonExit')}</th>
             </tr>
           </thead>
           <tbody>
@@ -97,7 +97,7 @@ const AttendanceTable = ({ registrosAsistencia, language }) => {
               if (registro.entrada) {
                 const minutosEntrada = convertirAHorasMinutos(registro.entrada);
 
-                if (minutosEntrada <= convertirAHorasMinutos(t.employeeList.shiftTimes.morning.end)) {
+                if (minutosEntrada <= convertirAHorasMinutos(t('employeeList.shiftTimes.morning.end'))) {
                   entradaMañana = registro.entrada;
                 } else {
                   entradaTarde = registro.entrada;
@@ -107,11 +107,11 @@ const AttendanceTable = ({ registrosAsistencia, language }) => {
               if (registro.salida) {
                 const minutosSalida = convertirAHorasMinutos(registro.salida);
 
-                if (minutosSalida < convertirAHorasMinutos(t.employeeList.shiftTimes.morning.start)) {
+                if (minutosSalida < convertirAHorasMinutos(t('employeeList.shiftTimes.morning.start'))) {
                   salidaTarde = registro.salida; // Madrugada
-                } else if (minutosSalida <= convertirAHorasMinutos(t.employeeList.shiftTimes.morning.end)) {
+                } else if (minutosSalida <= convertirAHorasMinutos(t('employeeList.shiftTimes.morning.end'))) {
                   salidaMañana = registro.salida;
-                } else if (minutosSalida <= convertirAHorasMinutos(t.employeeList.shiftTimes.afternoon.start)) {
+                } else if (minutosSalida <= convertirAHorasMinutos(t('employeeList.shiftTimes.afternoon.start'))) {
                   salidaMañana = registro.salida;
                 } else {
                   salidaTarde = registro.salida;
@@ -121,23 +121,23 @@ const AttendanceTable = ({ registrosAsistencia, language }) => {
               // Retrasos y salidas anticipadas
               const retrasoMañana =
                 entradaMañana !== "-" &&
-                (hEntrada > t.employeeList.shiftTimes.morning.start.split(":")[0] ||
-                  (hEntrada === t.employeeList.shiftTimes.morning.start.split(":")[0] && mEntrada > t.employeeList.shiftTimes.morning.start.split(":")[1]));
+                (hEntrada > t('employeeList.shiftTimes.morning.start').split(":")[0] ||
+                  (hEntrada === t('employeeList.shiftTimes.morning.start').split(":")[0] && mEntrada > t('employeeList.shiftTimes.morning.start').split(":")[1]));
 
               const retrasoTarde =
                 entradaTarde !== "-" &&
-                (hEntrada > t.employeeList.shiftTimes.afternoon.start.split(":")[0] ||
-                  (hEntrada === t.employeeList.shiftTimes.afternoon.start.split(":")[0] && mEntrada > t.employeeList.shiftTimes.afternoon.start.split(":")[1]));
+                (hEntrada > t('employeeList.shiftTimes.afternoon.start').split(":")[0] ||
+                  (hEntrada === t('employeeList.shiftTimes.afternoon.start').split(":")[0] && mEntrada > t('employeeList.shiftTimes.afternoon.start').split(":")[1]));
 
               const salidaAntesMañana =
                 salidaMañana !== "-" &&
-                (hSalida < t.employeeList.shiftTimes.morning.end.split(":")[0] ||
-                  (hSalida === t.employeeList.shiftTimes.morning.end.split(":")[0] && mSalida < t.employeeList.shiftTimes.morning.end.split(":")[1]));
+                (hSalida < t('employeeList.shiftTimes.morning.end').split(":")[0] ||
+                  (hSalida === t('employeeList.shiftTimes.morning.end').split(":")[0] && mSalida < t('employeeList.shiftTimes.morning.end').split(":")[1]));
 
               const salidaAntesTarde =
                 salidaTarde !== "-" &&
-                ((hSalida < t.employeeList.shiftTimes.afternoon.end.split(":")[0] && hSalida > t.employeeList.shiftTimes.morning.start.split(":")[0]) ||
-                  (hSalida === t.employeeList.shiftTimes.afternoon.end.split(":")[0] && mSalida < t.employeeList.shiftTimes.afternoon.end.split(":")[1]));
+                ((hSalida < t('employeeList.shiftTimes.afternoon.end').split(":")[0] && hSalida > t('employeeList.shiftTimes.morning.start').split(":")[0]) ||
+                  (hSalida === t('employeeList.shiftTimes.afternoon.end').split(":")[0] && mSalida < t('employeeList.shiftTimes.afternoon.end').split(":")[1]));
 
               return (
                 <tr key={index} style={{ textAlign: "center" }}>
@@ -202,13 +202,13 @@ const AttendanceTable = ({ registrosAsistencia, language }) => {
           margin: "20px auto",
         }}
       >
-        Generar Reporte Mensual
+        {t('attendanceTable.generateReport')}
       </button>
 
       {/* Mostrar el reporte mensual */}
       {mostrarReporte && (
         <div>
-          <h2 style={{ textAlign: "center", color: "#34495e" }}>Reporte Mensual</h2>
+          <h2 style={{ textAlign: "center", color: "#34495e" }}>{t('attendanceTable.monthlyReport')}</h2>
           <table
             style={{
               width: "100%",
@@ -219,8 +219,8 @@ const AttendanceTable = ({ registrosAsistencia, language }) => {
           >
             <thead>
               <tr style={{ backgroundColor: "#2c3e50", color: "white", textAlign: "center" }}>
-                <th style={{ padding: "12px" }}>Retraso Total</th>
-                <th style={{ padding: "12px" }}>Días Trabajados</th>
+                <th style={{ padding: "12px" }}>{t('attendanceTable.headers.totalDelay')}</th>
+                <th style={{ padding: "12px" }}>{t('attendanceTable.headers.workedDays')}</th>
               </tr>
             </thead>
             <tbody>
