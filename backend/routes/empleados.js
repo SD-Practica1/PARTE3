@@ -46,4 +46,29 @@ router.get("/:id/asistencia", async (req, res) => {
     }
 });
 
+router.get("/asistencia", async (req, res) => {
+    try {
+        // Consulta SQL para obtener todos los registros de asistencia
+        const [rows] = await pool.query(
+            `SELECT e.nombre, fecha, 
+                    MAX(CASE WHEN tipo = 'Entrada' THEN hora ELSE NULL END) AS entrada,
+                    MAX(CASE WHEN tipo = 'Salida' THEN hora ELSE NULL END) AS salida
+            FROM Registro_Entrada_Salida r
+            INNER JOIN empleado e ON r.empleado_id = e.id
+            GROUP BY empleado_id, fecha
+            ORDER BY e.nombre`
+        );
+
+        // Verificar si se encontraron registros
+        if (rows.length > 0) {
+            res.json(rows); // Devuelve los registros como respuesta en formato JSON
+        } else {
+            res.status(404).json({ message: "No se encontraron registros de asistencia." });
+        }
+    } catch (error) {
+        console.error("❌ Error al obtener la lista de asistencia:", error);
+        res.status(500).json({ message: "Error al obtener la lista de asistencia" });
+    }
+});
+
 module.exports = router;
