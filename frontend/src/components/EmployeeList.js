@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from "react";
-import { useLanguage } from "../utils/translations";
+import { useTranslation } from "react-i18next";
 import AttendanceTable from "./AttendanceTable";
 import DownloadAttendanceReport from "./AttendanceReport";
 import axios from "axios";
 
-const EmployeeList = ({ language }) => {
-  const t = useLanguage(language);
+const EmployeeList = () => {
+  const { t } = useTranslation();
   const [empleados, setEmpleados] = useState([]);
   const [selectedEmpleado, setSelectedEmpleado] = useState("");
   const [registrosAsistencia, setRegistrosAsistencia] = useState([]);
@@ -47,12 +47,12 @@ const EmployeeList = ({ language }) => {
   
   return (
     <div style={{ fontFamily: "Arial, sans-serif" }}>
-      <h1 style={{ color: "#2c3e50", textAlign: "center" }}>{t.employeeList.title}</h1>
+      <h1 style={{ color: "#2c3e50", textAlign: "center" }}>{t('employeeList.title')}</h1>
 
       <div>
-        <h2 style={{ textAlign: "center", color: "#34495e" }}>{t.employeeList.shifts}</h2>
+        <h2 style={{ textAlign: "center", color: "#34495e" }}>{t('employeeList.shifts')}</h2>
         <ul style={{ textAlign: "center", listStyle: "none", padding: 0 }}>
-          {Object.entries(t.employeeList.shiftTimes).map(([key, turno], index) => (
+          {Object.entries(t('employeeList.shiftTimes', { returnObjects: true })).map(([key, turno], index) => (
             <li key={index} style={{ marginBottom: "5px", fontSize: "16px" }}>
               <strong>{turno.name}:</strong>{" "}
               {turno.start} - {turno.end}
@@ -76,7 +76,7 @@ const EmployeeList = ({ language }) => {
           marginBottom: "20px",
         }}
       >
-        <option value="">{t.employeeList.selectEmployee}</option>
+        <option value="">{t('employeeList.selectEmployee')}</option>
         {empleados.map((empleado) => (
           <option key={empleado.id} value={empleado.id}>
             {empleado.nombre}

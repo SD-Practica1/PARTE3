@@ -1,4 +1,5 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 
 const horarios = {
   mañana: { inicio: { hora: 8, minutos: 30 } },
@@ -27,8 +28,8 @@ const formatoHorasMinutos = (minutos) => {
     return `${horas}h ${mins}m`;
   };
   
-  const generarTextoReporte = (listaEmpleados) => {
-    let reporte = "Reporte de Asistencia\n\n";
+const generarTextoReporte = (listaEmpleados, t) => {
+    let reporte = `${t('attendanceReport.title')}\n\n`;
   
     listaEmpleados.forEach((empleado) => {
       let totalRetraso = 0;
@@ -46,9 +47,9 @@ const formatoHorasMinutos = (minutos) => {
         }
       });
   
-      reporte += `Empleado: ${empleado.nombre}\n`;
-      reporte += `Días trabajados: ${diasTrabajados}\n`;
-      reporte += `Total de retrasos: ${formatoHorasMinutos(totalRetraso)}\n\n`;
+      reporte += `${t('attendanceReport.employee')}: ${empleado.nombre}\n`;
+      reporte += `${t('attendanceReport.daysWorked')}: ${diasTrabajados}\n`;
+      reporte += `${t('attendanceReport.totalDelays')}: ${formatoHorasMinutos(totalRetraso)}\n\n`;
     });
   
     return reporte;
@@ -73,14 +74,15 @@ const agruparPorEmpleado = (registros) => {
   
     return Object.values(empleados);
   };
-  
-
+   
 const DownloadAttendanceReport = ({ listaEmpleados }) => {
+    const { t } = useTranslation();
+
     const descargarReporte = () => {
         console.log("Lista de empleados original:", listaEmpleados);
       
         if (!Array.isArray(listaEmpleados) || listaEmpleados.length === 0) {
-          console.warn("No hay empleados para generar el reporte.");
+          console.warn(t('attendanceReport.noEmployeesWarning'));
           return;
         }
       
@@ -88,7 +90,7 @@ const DownloadAttendanceReport = ({ listaEmpleados }) => {
         const empleadosAgrupados = agruparPorEmpleado(listaEmpleados);
         console.log("Empleados agrupados:", empleadosAgrupados);
       
-        const texto = generarTextoReporte(empleadosAgrupados);
+        const texto = generarTextoReporte(empleadosAgrupados, t);
       
         const blob = new Blob([texto], { type: "text/plain" });
         const link = document.createElement("a");
@@ -98,13 +100,22 @@ const DownloadAttendanceReport = ({ listaEmpleados }) => {
         link.click();
         document.body.removeChild(link);
       };
-      
-
-  return (
-    <button onClick={descargarReporte} style={{ padding: "10px", background: "#3498db", color: "white", border: "none", cursor: "pointer", borderRadius: "5px" }}>
-      Descargar Reporte
-    </button>
-  );
+       
+    return (
+      <button 
+        onClick={descargarReporte} 
+        style={{ 
+          padding: "10px", 
+          background: "#3498db", 
+          color: "white", 
+          border: "none", 
+          cursor: "pointer", 
+          borderRadius: "5px" 
+        }}
+      >
+        {t('attendanceReport.downloadButton')}
+      </button>
+    );
 };
 
 export default DownloadAttendanceReport;

@@ -51,6 +51,14 @@ export const translations = {
         totalDelay: "Total Delay",
         workedDays: "Worked Days"
       }
+    },
+    attendanceReport: {
+      title: "Attendance Report",
+      employee: "Employee",
+      daysWorked: "Days Worked",
+      totalDelays: "Total Delays",
+      downloadButton: "Download Report",
+      noEmployeesWarning: "No employees available to generate the report."
     }
   },
   es: {
@@ -104,6 +112,14 @@ export const translations = {
         totalDelay: "Retraso Total",
         workedDays: "Días Trabajados"
       }
+    },
+    attendanceReport: {
+      title: "Reporte de Asistencia",
+      employee: "Empleado",
+      daysWorked: "Días Trabajados",
+      totalDelays: "Total de Retrasos",
+      downloadButton: "Descargar Reporte",
+      noEmployeesWarning: "No hay empleados para generar el reporte."
     }
   },
   ko: {
@@ -157,11 +173,19 @@ export const translations = {
         totalDelay: "총 지연",
         workedDays: "근무일"
       }
+    },
+    attendanceReport: {
+      title: "출석 보고서",
+      employee: "직원",
+      daysWorked: "근무일",
+      totalDelays: "총 지연",
+      downloadButton: "보고서 다운로드",
+      noEmployeesWarning: "보고서를 생성할 직원이 없습니다."
     }
   }
 };
 
-// Language selection hook
+// Language selection hook (kept for backward compatibility)
 export const useLanguage = (lang = 'en') => {
   return translations[lang] || translations['en'];
 };
