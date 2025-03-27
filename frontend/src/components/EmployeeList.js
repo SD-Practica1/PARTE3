@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useLanguage } from "../utils/translations";
 import AttendanceTable from "./AttendanceTable";
+import DownloadAttendanceReport from "./AttendanceReport";
 import axios from "axios";
 
 const EmployeeList = ({ language }) => {
@@ -8,6 +9,8 @@ const EmployeeList = ({ language }) => {
   const [empleados, setEmpleados] = useState([]);
   const [selectedEmpleado, setSelectedEmpleado] = useState("");
   const [registrosAsistencia, setRegistrosAsistencia] = useState([]);
+  const [listaAsistencia, setListaAsistencia] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     axios.get("http://localhost:9097/empleados")
@@ -26,6 +29,21 @@ const EmployeeList = ({ language }) => {
         .catch((error) => console.error("Error al obtener registros:", error));
     }
   }, [selectedEmpleado]);
+
+  useEffect(() => {
+    axios.get("http://localhost:9097/empleados/asistencia")
+      .then((response) => {
+        setListaAsistencia(response.data);
+      })
+      .catch((error) => {
+        console.error("Error al obtener la lista de asistencia:", error);
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
+  }, []);
+
+  const isReadyForDownload = !isLoading && empleados.length > 0 && listaAsistencia.length > 0;
   
   return (
     <div style={{ fontFamily: "Arial, sans-serif" }}>
@@ -69,6 +87,10 @@ const EmployeeList = ({ language }) => {
       {selectedEmpleado && (
         <AttendanceTable registrosAsistencia={registrosAsistencia} />
       )}
+
+      <div style={{ textAlign: "center", marginTop: "20px" }}>
+        {isReadyForDownload && (<DownloadAttendanceReport listaEmpleados={listaAsistencia}/>)}
+      </div>
     </div>
   );
 };
