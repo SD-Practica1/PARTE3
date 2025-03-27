@@ -1,11 +1,8 @@
 import React, { useState } from "react";
+import { useLanguage } from "../utils/translations";
 
-const horarios = {
-  mañana: { inicio: { hora: 8, minutos: 30 }, fin: { hora: 12, minutos: 30 } },
-  tarde: { inicio: { hora: 14, minutos: 30 }, fin: { hora: 18, minutos: 30 } },
-};
-
-const AttendanceTable = ({ registrosAsistencia }) => {
+const AttendanceTable = ({ registrosAsistencia, language }) => {
+  const t = useLanguage(language);
   const [mostrarReporte, setMostrarReporte] = useState(false);
   const [reporteMensual, setReporteMensual] = useState([]);
 
@@ -17,7 +14,9 @@ const AttendanceTable = ({ registrosAsistencia }) => {
   const calcularRetraso = (horaEntrada, turno) => {
     const minutosEntrada = convertirAHorasMinutos(horaEntrada);
     const minutosInicioTurno =
-      turno === "mañana" ? horarios.mañana.inicio.hora * 60 + horarios.mañana.inicio.minutos : horarios.tarde.inicio.hora * 60 + horarios.tarde.inicio.minutos;
+      turno === "mañana" 
+        ? convertirAHorasMinutos(t.employeeList.shiftTimes.morning.start)
+        : convertirAHorasMinutos(t.employeeList.shiftTimes.afternoon.start);
 
     const retraso = minutosEntrada - minutosInicioTurno;
     return retraso > 0 ? retraso : 0; // Si no hay retraso, retorna 0
@@ -32,7 +31,7 @@ const AttendanceTable = ({ registrosAsistencia }) => {
       if (registro.entrada) {
         const minutosEntrada = convertirAHorasMinutos(registro.entrada);
   
-        if (minutosEntrada <= horarios.mañana.fin.hora * 60 + horarios.mañana.fin.minutos) {
+        if (minutosEntrada <= convertirAHorasMinutos(t.employeeList.shiftTimes.morning.end)) {
           // Calcular retraso para turno mañana
           retrasoTotal = calcularRetraso(registro.entrada, "mañana");
         } else {
@@ -98,7 +97,7 @@ const AttendanceTable = ({ registrosAsistencia }) => {
               if (registro.entrada) {
                 const minutosEntrada = convertirAHorasMinutos(registro.entrada);
 
-                if (minutosEntrada <= horarios.mañana.fin.hora * 60 + horarios.mañana.fin.minutos) {
+                if (minutosEntrada <= convertirAHorasMinutos(t.employeeList.shiftTimes.morning.end)) {
                   entradaMañana = registro.entrada;
                 } else {
                   entradaTarde = registro.entrada;
@@ -108,11 +107,11 @@ const AttendanceTable = ({ registrosAsistencia }) => {
               if (registro.salida) {
                 const minutosSalida = convertirAHorasMinutos(registro.salida);
 
-                if (minutosSalida < horarios.mañana.inicio.hora * 60 + horarios.mañana.inicio.minutos) {
+                if (minutosSalida < convertirAHorasMinutos(t.employeeList.shiftTimes.morning.start)) {
                   salidaTarde = registro.salida; // Madrugada
-                } else if (minutosSalida <= horarios.mañana.fin.hora * 60 + horarios.mañana.fin.minutos) {
+                } else if (minutosSalida <= convertirAHorasMinutos(t.employeeList.shiftTimes.morning.end)) {
                   salidaMañana = registro.salida;
-                } else if (minutosSalida <= horarios.tarde.inicio.hora * 60 + horarios.tarde.inicio.minutos) {
+                } else if (minutosSalida <= convertirAHorasMinutos(t.employeeList.shiftTimes.afternoon.start)) {
                   salidaMañana = registro.salida;
                 } else {
                   salidaTarde = registro.salida;
@@ -122,23 +121,23 @@ const AttendanceTable = ({ registrosAsistencia }) => {
               // Retrasos y salidas anticipadas
               const retrasoMañana =
                 entradaMañana !== "-" &&
-                (hEntrada > horarios.mañana.inicio.hora ||
-                  (hEntrada === horarios.mañana.inicio.hora && mEntrada > horarios.mañana.inicio.minutos));
+                (hEntrada > t.employeeList.shiftTimes.morning.start.split(":")[0] ||
+                  (hEntrada === t.employeeList.shiftTimes.morning.start.split(":")[0] && mEntrada > t.employeeList.shiftTimes.morning.start.split(":")[1]));
 
               const retrasoTarde =
                 entradaTarde !== "-" &&
-                (hEntrada > horarios.tarde.inicio.hora ||
-                  (hEntrada === horarios.tarde.inicio.hora && mEntrada > horarios.tarde.inicio.minutos));
+                (hEntrada > t.employeeList.shiftTimes.afternoon.start.split(":")[0] ||
+                  (hEntrada === t.employeeList.shiftTimes.afternoon.start.split(":")[0] && mEntrada > t.employeeList.shiftTimes.afternoon.start.split(":")[1]));
 
               const salidaAntesMañana =
                 salidaMañana !== "-" &&
-                (hSalida < horarios.mañana.fin.hora ||
-                  (hSalida === horarios.mañana.fin.hora && mSalida < horarios.mañana.fin.minutos));
+                (hSalida < t.employeeList.shiftTimes.morning.end.split(":")[0] ||
+                  (hSalida === t.employeeList.shiftTimes.morning.end.split(":")[0] && mSalida < t.employeeList.shiftTimes.morning.end.split(":")[1]));
 
               const salidaAntesTarde =
                 salidaTarde !== "-" &&
-                ((hSalida < horarios.tarde.fin.hora && hSalida > horarios.mañana.inicio.hora) ||
-                  (hSalida === horarios.tarde.fin.hora && mSalida < horarios.tarde.fin.minutos));
+                ((hSalida < t.employeeList.shiftTimes.afternoon.end.split(":")[0] && hSalida > t.employeeList.shiftTimes.morning.start.split(":")[0]) ||
+                  (hSalida === t.employeeList.shiftTimes.afternoon.end.split(":")[0] && mSalida < t.employeeList.shiftTimes.afternoon.end.split(":")[1]));
 
               return (
                 <tr key={index} style={{ textAlign: "center" }}>

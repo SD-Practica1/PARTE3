@@ -1,13 +1,10 @@
 import React, { useState, useEffect } from "react";
+import { useLanguage } from "../utils/translations";
 import AttendanceTable from "./AttendanceTable";
 import axios from "axios";
 
-const horarios = {
-  mañana: { inicio: { hora: 8, minutos: 30 }, fin: { hora: 12, minutos: 30 } },
-  tarde: { inicio: { hora: 14, minutos: 30 }, fin: { hora: 18, minutos: 30 } },
-};
-
-const EmployeeList = () => {
+const EmployeeList = ({ language }) => {
+  const t = useLanguage(language);
   const [empleados, setEmpleados] = useState([]);
   const [selectedEmpleado, setSelectedEmpleado] = useState("");
   const [registrosAsistencia, setRegistrosAsistencia] = useState([]);
@@ -32,21 +29,19 @@ const EmployeeList = () => {
   
   return (
     <div style={{ fontFamily: "Arial, sans-serif" }}>
-      <h1 style={{ color: "#2c3e50", textAlign: "center" }}>Seleccionar Empleado</h1>
+      <h1 style={{ color: "#2c3e50", textAlign: "center" }}>{t.employeeList.title}</h1>
 
       <div>
-        <h2 style={{ textAlign: "center", color: "#34495e" }}>Horarios de Turnos</h2>
+        <h2 style={{ textAlign: "center", color: "#34495e" }}>{t.employeeList.shifts}</h2>
         <ul style={{ textAlign: "center", listStyle: "none", padding: 0 }}>
-          {Object.entries(horarios).map(([nombre, turno], index) => (
+          {Object.entries(t.employeeList.shiftTimes).map(([key, turno], index) => (
             <li key={index} style={{ marginBottom: "5px", fontSize: "16px" }}>
-              <strong>{nombre.charAt(0).toUpperCase() + nombre.slice(1)}:</strong>{" "}
-              {turno.inicio.hora}:{turno.inicio.minutos.toString().padStart(2, "0")} -{" "}
-              {turno.fin.hora}:{turno.fin.minutos.toString().padStart(2, "0")}
+              <strong>{turno.name}:</strong>{" "}
+              {turno.start} - {turno.end}
             </li>
           ))}
         </ul>
       </div>
-
 
       <select
         value={selectedEmpleado}
@@ -63,7 +58,7 @@ const EmployeeList = () => {
           marginBottom: "20px",
         }}
       >
-        <option value="">Seleccione un empleado</option>
+        <option value="">{t.employeeList.selectEmployee}</option>
         {empleados.map((empleado) => (
           <option key={empleado.id} value={empleado.id}>
             {empleado.nombre}
@@ -74,7 +69,6 @@ const EmployeeList = () => {
       {selectedEmpleado && (
         <AttendanceTable registrosAsistencia={registrosAsistencia} />
       )}
-
     </div>
   );
 };

@@ -1,66 +1,55 @@
 import React, { useState } from "react";
 import CryptoJS from "crypto-js";
 import EmployeeList from "./components/EmployeeList";
+import { useLanguage } from "./utils/translations";
 
-const SECRET_KEY = "mi_clave_secreta"; // Cambia esto por una clave segura
+const SECRET_KEY = "mi_clave_secreta";
 
 const App = () => {
+    const [language, setLanguage] = useState('en');
+    const t = useLanguage(language);
     const [key, setKey] = useState('');
-    const [encryptedKey, setEncryptedKey] = useState('');
     const [accessGranted, setAccessGranted] = useState(false);
 
-    // Función para manejar la entrada de la clave
     const handleKeyChange = (e) => {
         setKey(e.target.value);
     };
 
-    // Verificar la clave y otorgar acceso
     const checkAccess = () => {
         if (key === "123456") {
-            // Cifrar la clave y guardarla
             const encrypted = CryptoJS.AES.encrypt(key, SECRET_KEY).toString();
-            setEncryptedKey(encrypted);
-
-            setAccessGranted(true);  // Acceso concedido
+            setAccessGranted(true);
         } else {
-            alert('Clave incorrecta. Acceso denegado.');
-            setAccessGranted(false);  // Acceso denegado
+            alert(t.login.incorrectKey);
+            setAccessGranted(false);
         }
     };
 
     return (
         <div>
-            <h1>Control de Asistencia</h1>
+            {/* Language Selector */}
+            <div>
+                <button onClick={() => setLanguage('en')}>English</button>
+                <button onClick={() => setLanguage('es')}>Español</button>
+                <button onClick={() => setLanguage('ko')}>한국어</button>
+            </div>
 
-            {/* Mostrar el campo de clave solo si no se ha concedido acceso */}
+            <h1>{t.login.title}</h1>
+
             {!accessGranted && (
                 <div>
-                    <label>Introduce la clave de acceso:</label>
+                    <label>{t.login.accessKey}:</label>
                     <input
                         type="password"
-                        placeholder="Clave de acceso"
+                        placeholder={t.login.accessKey}
                         value={key}
                         onChange={handleKeyChange}
                     />
-                    <button onClick={checkAccess}>Acceder</button>
+                    <button onClick={checkAccess}>{t.login.accessButton}</button>
                 </div>
             )}
 
-            {/* Mostrar información cifrada solo si la clave es correcta */}
-            {accessGranted ? (
-                <div>
-                    <EmployeeList />
-                    <p><strong>Clave encriptada:</strong></p>
-                    <textarea 
-                        value={encryptedKey} 
-                        readOnly 
-                        rows="4" 
-                        cols="50"
-                    />
-                </div>
-            ) : (
-                <p>Introduce la clave correcta para acceder a la lista de empleados.</p>
-            )}
+            {accessGranted && <EmployeeList language={language} />}
         </div>
     );
 };
